@@ -1,60 +1,76 @@
 #include <iostream>
-#include <vector>
-
+#define endl '\n'
 using namespace std;
 
-void bubbleSort(vector<int>& arr) {
-    int n = arr.size();
-    // Implementação do algoritmo Bubble Sort
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (arr[j] > arr[j + 1]) {
-                // Troca dos elementos
-                int temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+void swap(long long int *vec, long long int a, long long int b) {
+    long long int temp = vec[a];
+    vec[a] = vec[b];
+    vec[b] = temp;
+}
+
+// Função insertion sort
+void inssort(long long int *vec, long long int l, long long int r) {
+    for (int i = l + 1; i < r; i++) {
+        for (int j = i; j > l; j--) {
+            if (vec[j] < vec[j - 1]) {
+                int temp = vec[j];
+                vec[j] = vec[j-1];
+                vec[j-1] = temp;
             }
         }
     }
 }
 
+// Função para fazer o particionamento no quicksort
+long long int partition(long long int *vec, long long int l, long long int r, long long int val) {
+    do {
+        while (vec[++l] < val);
+        while (l < r && vec[--r] > val);
+        swap(vec, l, r);
+    } while (l < r);
+    return l;
+}
+
+// Função Quicksort
+void quicksort(long long int *vec, long long int l, long long int r) {
+    if (l >= r) return;
+    if (r - l <= 9) {
+        inssort(vec, l, r);
+    }
+    long long int p = (l + r) / 2;
+    swap(vec, r, p);
+    int k = partition(vec, l - 1, r, vec[r]);
+    swap(vec, k, r);
+    quicksort(vec, l, k - 1);
+    quicksort(vec, k + 1, r);
+}
+
 int main() {
-    int n, m;
+    cin.tie(0);
+    ios_base::sync_with_stdio(false);
 
-    // Leitura do número de elementos
-    cin >> n;
+    long long int choco, coupon, sum = 0, i;
+    cin >> choco;
 
-    vector<int> a(n);  // Usando vetor dinâmico (mais adequado no C++)
-    vector<long long> psum(n + 1, 0);  // Somas prefixadas
-    vector<long long> nsum(n + 2, 0);  // Somas sufixadas
-
-    // Leitura do vetor a
-    for (int i = 0; i < n; i++) {
-        cin >> a[i];
+    long long int price[choco];  // Array para armazenar os preços dos chocolates
+    for (int i = 0; i < choco; i++) {
+        cin >> price[i];  // Lê o preço de cada chocolate
     }
 
-    // Ordenação manual usando bubbleSort
-    bubbleSort(a);
-
-    // Calculando as somas prefixadas
-    for (int i = 1; i <= n; i++) {
-        psum[i] = psum[i-1] + a[i-1];  // Lembre-se que 'a' começa do índice 0  
+    cin >> coupon;
+    long long int number[coupon];  // Array para armazenar os valores dos cupons
+    for (int i = 0; i < coupon; i++) {
+        cin >> number[i];
     }
 
-    // Calculando as somas sufixadas
-    for (int i = n - 1; i >= 0; i--) {
-        nsum[i+1] = nsum[i+2] + a[i];
+    quicksort(price, 0, choco - 1);  // Ordena os preços dos chocolates
+
+    for (int i = 0; i < choco; i++) {
+        sum += price[i];
     }
 
-    // Leitura do número de consultas
-    cin >> m;
-
-    int temp;
-    // Processando as consultas
-    for (int i = 0; i < m; i++) {
-        cin >> temp;
-        // Imprime a soma de acordo com o cálculo dado
-        cout << nsum[n - temp + 2] + psum[n - temp] << endl;
+    for (int i = 0; i < coupon; i++) {
+        cout << sum - price[choco - number[i]] << endl;
     }
 
     return 0;
